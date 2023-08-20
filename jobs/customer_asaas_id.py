@@ -33,7 +33,6 @@ def registra_cliente_na_api(nome, sobrenome, cpf):
 
 def busca_e_insere_dados(host, database, user, password):
     try:
-        # Conecta ao banco de dados PostgreSQL
         with psycopg2.connect(
             host=host,
             database=database,
@@ -41,18 +40,16 @@ def busca_e_insere_dados(host, database, user, password):
             password=password
         ) as connection:
 
-            # Cria um cursor para executar comandos SQL
             with connection.cursor() as cursor:
 
-                # Executa a consulta SQL para buscar os dados
                 sql = "SELECT name, surname, cpf FROM customers"
                 cursor.execute(sql)
 
-                # Recupera as linhas e imprime os resultados
                 for row in cursor:
                     name, surname, cpf = row
                     print(f"Name: {name}, Surname: {surname}, CPF: {cpf}")
                     asaas_id = registra_cliente_na_api(name, surname, cpf)
+                    print(f"ID Asaas: {asaas_id}")
                     with connection.cursor() as cursor_update:
                         update = f"UPDATE customers SET customer_asaas_id = '{asaas_id}' WHERE cpf = '{cpf}'"
                         cursor_update.execute(update)
