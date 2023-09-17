@@ -1,3 +1,5 @@
 old
 .vscode
 .env
+__pycache__
+jobs/config/__pycache__

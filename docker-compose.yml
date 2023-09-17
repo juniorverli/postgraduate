@@ -9,4 +9,23 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgresql/create_transaction_tables.sql:/docker-entrypoint-initdb.d/create_transaction_tables.sql
+      - ./postgresql/create_and_insert_customer_table.sql:/docker-entrypoint-initdb.d/create_and_insert_customer_table.sql
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    restart: always
+    

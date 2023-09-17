@@ -1,15 +1,4 @@
-CREATE TABLE pending_transactions (
-    id SERIAL PRIMARY KEY,
-    customer_id INT NOT NULL,
-    type_transaction VARCHAR(50) NOT NULL,
-    created_date timestamp DEFAULT current_timestamp,
-    expiration_date timestamp NOT NULL,
-    payment_date timestamp NULL,
-    value NUMERIC(10, 2) NOT NULL,
-    status VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE customers (
+CREATE TABLE customer (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     surname VARCHAR(50) NOT NULL,
@@ -29,7 +18,7 @@ CREATE TABLE customers (
     customer_asaas_id VARCHAR(50) NULL
 );
 
-INSERT INTO customers (
+INSERT INTO customer (
     name,
     surname,
     birthday_date,
