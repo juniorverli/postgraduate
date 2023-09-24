@@ -38,6 +38,7 @@ def pending_transactions():
            'card_cvv': row[21],
            'customer_asaas_id': row[22]
        }
+       update_status(conn, row[0], 'SEND_POSTGRESQL', "pending_transaction_postgresql")
        transactions.append(message)
     conn.close()
     return json.dumps(transactions)
@@ -77,20 +78,20 @@ def send_payment_request(transaction):
             "remoteIp": "localhost"
         }
 
-        update_status(conn, transaction['id'], 'SEND')
+        update_status(conn, transaction['id'], 'SEND_API', "pending_transaction_postgresql")
         response = requests.post(asaas_api_url, headers=headers, json=payload)
 
         if response.status_code == 200:
             print(f"Pedido de pagamento enviado com sucesso para a transação ID {transaction['id']}")
-            update_status(conn, transaction['id'], 'CONFIRMED')
+            update_status(conn, transaction['id'], 'CONFIRMED', "pending_transaction_postgresql")
         
         elif response.status_code == 400:
             print(f"Pedido de pagamento rejeitado para a transação ID {transaction['id']}")
-            update_status(conn, transaction['id'], 'REJECTED')
+            update_status(conn, transaction['id'], 'REJECTED', "pending_transaction_postgresql")
 
         else:
             print(f"Erro ao enviar pedido de pagamento para a transação ID {transaction['id']}: {response.text}")
-            update_status(conn, transaction['id'], 'SEND_ERROR')
+            update_status(conn, transaction['id'], 'SEND_ERROR', "pending_transaction_postgresql")
 
     except Exception as e:
         print(f"Erro ao enviar pedido de pagamento: {str(e)}")
@@ -102,16 +103,17 @@ if __name__ == '__main__':
     load_dotenv()
     access_token = os.getenv("ACCESS_TOKEN")
 
-    transactions = json.loads(pending_transactions())
-
+    count = 0
     start_time = time.time()
+    while count < 5000:
+        transactions = json.loads(pending_transactions())
 
-    for transaction in transactions:
-        
-        print(transaction)
-        send_payment_request(transaction)
+        for transaction in transactions:
+            
+            print(transaction)
+            send_payment_request(transaction)
+            count += 1
 
     end_time = time.time()
     elapsed_time = end_time - start_time
-
     print(f"Tempo de execução total: {elapsed_time} segundos")

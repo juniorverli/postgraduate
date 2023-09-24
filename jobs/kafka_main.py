@@ -12,8 +12,6 @@ KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'
 KAFKA_PENDING_TRANSACTION_TOPIC = 'pending_transaction_topic'
 KAFKA_TRANSACTION_CHANGE_STATUS = 'transaction_change_status'
 
-mensagens_processadas = set()
-
 def transaction_change_status(transaction_id, new_status):
 
     status_update_message = {
@@ -58,7 +56,7 @@ def send_payment_request(transaction):
             "remoteIp": "localhost"
         }
 
-        transaction_change_status(transaction['id'], 'SEND')
+        transaction_change_status(transaction['id'], 'SEND_API')
         response = requests.post(asaas_api_url, headers=headers, json=payload)
 
         if response.status_code == 200:
@@ -90,15 +88,12 @@ if __name__ == '__main__':
     for message in consumer:
         if count == 0:
             start_time = time.time()
-        if count == 1000:
-            break
         transaction = json.loads(message.value)
-        if transaction['id'] in mensagens_processadas:
-            continue
-        mensagens_processadas.add(transaction['id'])
         print(transaction)
         send_payment_request(transaction)
         count+=1
+        if count == 5000:
+            break
 
     end_time = time.time()
     elapsed_time = end_time - start_time

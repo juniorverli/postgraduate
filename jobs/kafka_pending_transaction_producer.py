@@ -1,10 +1,10 @@
 import psycopg2
-from config.database import connect_to_database, fetch_pending_transactions
+from config.database import connect_to_database, fetch_pending_transactions, update_status
 from kafka import KafkaProducer
 import json
 
 KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'
-KAFKA_TOPIC = 'pending_transaction_topic'
+KAFKA_PENDING_TRANSACTION_TOPIC = 'pending_transaction_topic'
 
 def pending_transactions():
 
@@ -42,8 +42,9 @@ def pending_transactions():
             
             transaction_json = json.dumps(message)
 
-            producer.send(KAFKA_TOPIC, value=transaction_json)
+            producer.send(KAFKA_PENDING_TRANSACTION_TOPIC, value=transaction_json)
             print(f"Enviado para Kafka: {message}")
+            update_status(conn, row[0], 'SEND_KAFKA', "pending_transaction_kafka")
 
         print(f"{len(rows)} registros enviados para o Kafka com sucesso.")
 
@@ -61,5 +62,8 @@ if __name__ == '__main__':
         value_serializer=lambda v: json.dumps(v).encode('utf-8')
     )
 
-    while True:
+    count = 0
+
+    while count < 5000:
         pending_transactions()
+        count += 1000

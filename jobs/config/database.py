@@ -60,7 +60,9 @@ def fetch_pending_transactions(conn, table_name):
         FROM public.{table_name}
         INNER JOIN public.customer ON
 	        {table_name}.customer_id = customer.id
-        WHERE {table_name}.status = 'PENDING_SEND';
+        WHERE {table_name}.status = 'PENDING_SEND'
+        ORDER BY 1 ASC
+        LIMIT 1000;
         """
     
         cursor.execute(sql)

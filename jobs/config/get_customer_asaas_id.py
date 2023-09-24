@@ -50,6 +50,7 @@ def get_and_insert_customer_asaas_id(conn):
                 with conn.cursor() as cursor_update:
                     update = f"UPDATE customer SET customer_asaas_id = '{asaas_id}' WHERE cpf = '{cpf}'"
                     cursor_update.execute(update)
+                    conn.commit()
 
     except (Exception, psycopg2.Error) as error:
         print("Erro ao buscar dados:", error)

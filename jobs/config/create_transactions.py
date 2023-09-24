@@ -16,7 +16,7 @@ def generate_random_date():
 
 def create_transactions(table_name):
 
-    for i in range(0, 1000):
+    for i in range(0, 5000):
         customer_id = 1
         type_transaction = 'CREDIT_CARD'
         expiration_date = generate_random_date().strftime("%Y-%m-%d 23:59:59.999")
